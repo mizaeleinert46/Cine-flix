@@ -1,0 +1,2177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineFácil - Descubra o filme perfeito para hoje</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Screen Management */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            fill: #7f5af0;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #7f5af0, #00cfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-btn, .back-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #7f5af0;
+            background: transparent;
+            color: #a855f7;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .login-btn:hover, .back-btn:hover {
+            background: #7f5af0;
+            color: white;
+        }
+
+        .back-btn {
+            border-color: #374151;
+            color: #9ca3af;
+        }
+
+        .back-btn:hover {
+            border-color: #7f5af0;
+            color: #7f5af0;
+            background: transparent;
+        }
+
+        /* LANDING PAGE STYLES */
+        .landing-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-container {
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .progress-bars {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .progress-bar-item {
+            width: 32px;
+            height: 8px;
+            border-radius: 4px;
+            background: #374151;
+        }
+
+        .progress-bar-item.active {
+            background: #7f5af0;
+        }
+
+        .decorative-icon {
+            position: absolute;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .decorative-icon.popcorn {
+            top: 25%;
+            left: 10%;
+            width: 64px;
+            height: 64px;
+            fill: #7f5af0;
+        }
+
+        .decorative-icon.clapperboard {
+            top: 33%;
+            right: 10%;
+            width: 48px;
+            height: 48px;
+            fill: #00cfff;
+        }
+
+        .decorative-icon.star {
+            bottom: 25%;
+            left: 20%;
+            width: 40px;
+            height: 40px;
+            fill: #7f5af0;
+        }
+
+        .main-headline {
+            font-size: 2.5rem;
+            font-weight: bold;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #7f5af0, #00cfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dynamic-text {
+            background: linear-gradient(45deg, #00cfff, #7f5af0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+            min-width: 280px;
+            min-height: 2.5rem;
+            text-align: center;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            vertical-align: top;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: visible;
+        }
+
+        @keyframes textFade {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .subheadline {
+            font-size: 1.25rem;
+            color: #d1d5db;
+            margin-bottom: 3rem;
+            max-width: 48rem;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: #7f5af0;
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(127, 90, 240, 0.25);
+        }
+
+        .cta-button:hover {
+            background: #6c47d9;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(127, 90, 240, 0.4);
+        }
+
+        .rocket-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .features-grid {
+            margin-top: 4rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 64rem;
+            width: 100%;
+        }
+
+        .feature-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            background: rgba(31, 41, 55, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(55, 65, 81, 0.5);
+            border-radius: 0.5rem;
+        }
+
+        .feature-icon-container {
+            padding: 0.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon-container.purple {
+            background: rgba(127, 90, 240, 0.2);
+        }
+
+        .feature-icon-container.cyan {
+            background: rgba(0, 207, 255, 0.2);
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .feature-icon.purple {
+            fill: #a855f7;
+        }
+
+        .feature-icon.cyan {
+            fill: #00cfff;
+        }
+
+        .feature-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .feature-description {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        /* QUIZ STYLES */
+        .progress-section {
+            padding: 2rem 1.5rem 1rem;
+            text-align: center;
+        }
+
+        .progress-text {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #374151;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #7f5af0, #00cfff);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 33.33%;
+        }
+
+        .quiz-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .question-container {
+            max-width: 600px;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .question-container.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .question-number {
+            color: #7f5af0;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .question-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 3rem;
+            line-height: 1.3;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem 1.5rem;
+            background: rgba(31, 41, 55, 0.5);
+            border: 2px solid rgba(55, 65, 81, 0.5);
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            color: white;
+            text-decoration: none;
+        }
+
+        .option-button:hover {
+            border-color: #7f5af0;
+            background: rgba(127, 90, 240, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(127, 90, 240, 0.2);
+        }
+
+        .option-button.selected {
+            border-color: #7f5af0;
+            background: rgba(127, 90, 240, 0.3);
+            box-shadow: 0 0 25px rgba(127, 90, 240, 0.5);
+            transform: translateY(-4px) scale(1.02);
+            animation: selectedPulse 0.6s ease-out;
+        }
+
+        @keyframes selectedPulse {
+            0% { transform: translateY(-2px) scale(1); }
+            50% { transform: translateY(-6px) scale(1.05); }
+            100% { transform: translateY(-4px) scale(1.02); }
+        }
+
+        .option-icon {
+            width: 48px;
+            height: 48px;
+            fill: #00cfff;
+        }
+
+        .option-text {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .option-description {
+            font-size: 0.875rem;
+            color: #9ca3af;
+            text-align: center;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .nav-button {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .prev-button {
+            background: rgba(55, 65, 81, 0.5);
+            color: #9ca3af;
+            border: 2px solid rgba(55, 65, 81, 0.5);
+        }
+
+        .prev-button:hover:not(:disabled) {
+            background: rgba(55, 65, 81, 0.8);
+            color: white;
+        }
+
+        .prev-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .next-button {
+            background: #7f5af0;
+            color: white;
+            border: 2px solid #7f5af0;
+        }
+
+        .next-button:hover:not(:disabled) {
+            background: #6c47d9;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(127, 90, 240, 0.3);
+        }
+
+        .next-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(127, 90, 240, 0.3);
+            border-top: 4px solid #7f5af0;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* RESULT STYLES */
+        .result-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .success-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(127, 90, 240, 0.2);
+            border: 2px solid #7f5af0;
+            border-radius: 2rem;
+            padding: 0.5rem 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #7f5af0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .badge-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #7f5af0, #00cfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: #9ca3af;
+            margin-bottom: 3rem;
+        }
+
+        .movie-card {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(31, 41, 55, 0.9);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(127, 90, 240, 0.3);
+            border-radius: 1.5rem;
+            padding: 0;
+            margin-bottom: 3rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.8s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .movie-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 300px;
+            background: linear-gradient(45deg, #7f5af0, #00cfff);
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .movie-backdrop img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+        }
+
+        .movie-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 300px;
+            background: linear-gradient(180deg, transparent 0%, rgba(31, 41, 55, 0.9) 100%);
+            z-index: 2;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .movie-content {
+            position: relative;
+            z-index: 3;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 2rem;
+            align-items: start;
+            margin-top: 200px;
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 330px;
+            background: linear-gradient(135deg, #374151, #4b5563);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid rgba(127, 90, 240, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            transform: translateY(-100px);
+        }
+
+        .poster-placeholder {
+            width: 80px;
+            height: 80px;
+            fill: #6b7280;
+        }
+
+        .movie-info {
+            text-align: left;
+            padding-top: 1rem;
+        }
+
+        .movie-badges {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .genre-badge {
+            background: rgba(127, 90, 240, 0.2);
+            color: #7f5af0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(127, 90, 240, 0.3);
+        }
+
+        .quality-badge {
+            background: rgba(0, 207, 255, 0.2);
+            color: #00cfff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(0, 207, 255, 0.3);
+        }
+
+        .movie-credits {
+            background: rgba(31, 41, 55, 0.5);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid rgba(127, 90, 240, 0.2);
+        }
+
+        .credits-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #7f5af0;
+            margin-bottom: 0.5rem;
+        }
+
+        .credits-text {
+            font-size: 0.875rem;
+            color: #d1d5db;
+        }
+
+        .movie-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .movie-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .meta-icon {
+            width: 16px;
+            height: 16px;
+            fill: #00cfff;
+        }
+
+        .rating {
+            background: rgba(0, 207, 255, 0.2);
+            color: #00cfff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: 600;
+        }
+
+        .movie-synopsis {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #d1d5db;
+            margin-bottom: 2rem;
+        }
+
+        .availability-text {
+            background: rgba(127, 90, 240, 0.1);
+            border: 1px solid rgba(127, 90, 240, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: #a855f7;
+        }
+
+        .cta-section {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .urgency-text {
+            background: linear-gradient(45deg, #dc2626, #ef4444);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            display: inline-block;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(220, 38, 38, 0.5); }
+            to { box-shadow: 0 0 20px rgba(220, 38, 38, 0.8); }
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .platform-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1.25rem 3rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            background: linear-gradient(135deg, #7f5af0, #00cfff);
+            color: white;
+            box-shadow: 0 15px 30px rgba(127, 90, 240, 0.4);
+            position: relative;
+            overflow: hidden;
+            min-width: 280px;
+        }
+
+        .platform-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .platform-btn:hover::before {
+            left: 100%;
+        }
+
+        .platform-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(127, 90, 240, 0.6);
+        }
+
+        .platform-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .secondary-btn {
+            background: transparent;
+            border: 2px solid #7f5af0;
+            color: #7f5af0;
+            box-shadow: none;
+        }
+
+        .secondary-btn:hover {
+            background: rgba(127, 90, 240, 0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(127, 90, 240, 0.3);
+        }
+
+        /* Features Section */
+        .features-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .features-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #7f5af0, #00cfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .features-subtitle {
+            text-align: center;
+            color: #a3a3a3;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .content-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .category-item {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .category-item:hover {
+            transform: translateY(-5px);
+            background: rgba(127, 90, 240, 0.2);
+            border-color: #7f5af0;
+        }
+
+        .category-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .category-name {
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .channels-section {
+            margin-top: 2rem;
+        }
+
+        .channels-title {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #e5e5e5;
+        }
+
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .channel-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .channel-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(127, 90, 240, 0.3);
+        }
+
+        .channel-logo {
+            font-size: 0.875rem;
+            font-weight: 700;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            color: white;
+            text-align: center;
+        }
+
+        .channel-logo.premiere {
+            background: linear-gradient(45deg, #0066cc, #004499);
+        }
+
+        .channel-logo.sportv {
+            background: linear-gradient(45deg, #ff6600, #cc5200);
+        }
+
+        .channel-logo.telecine {
+            background: linear-gradient(45deg, #cc0000, #990000);
+        }
+
+        .channel-logo.hbo {
+            background: linear-gradient(45deg, #000000, #333333);
+        }
+
+        .channel-logo.history {
+            background: linear-gradient(45deg, #8b4513, #654321);
+        }
+
+        .channel-logo.discovery {
+            background: linear-gradient(45deg, #009639, #007529);
+        }
+
+        .social-share {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .share-btn {
+            padding: 0.75rem;
+            border: 2px solid rgba(55, 65, 81, 0.5);
+            background: rgba(31, 41, 55, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #9ca3af;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .share-btn:hover {
+            border-color: #7f5af0;
+            background: rgba(127, 90, 240, 0.1);
+            color: #7f5af0;
+        }
+
+        .share-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .main-headline {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                margin-top: 2rem;
+            }
+
+            .feature-card {
+                padding: 1rem;
+            }
+
+            .question-title {
+                font-size: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .movie-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin-top: 150px;
+                padding: 1.5rem;
+                text-align: center;
+            }
+
+            .movie-poster {
+                height: 280px;
+                max-width: 200px;
+                margin: 0 auto;
+                transform: translateY(-80px);
+            }
+
+            .movie-info {
+                padding-top: 0;
+            }
+
+            .movie-backdrop {
+                height: 200px;
+            }
+
+            .movie-card::before {
+                height: 200px;
+            }
+
+            .movie-badges {
+                justify-content: center;
+            }
+
+            .features-section {
+                margin: 2rem 0;
+                padding: 1.5rem;
+            }
+
+            .features-title {
+                font-size: 1.5rem;
+            }
+
+            .content-categories {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .category-item {
+                padding: 1rem 0.5rem;
+            }
+
+            .category-icon {
+                font-size: 2rem;
+            }
+
+            .channels-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .channel-item {
+                padding: 0.75rem;
+            }
+
+            .channel-logo {
+                font-size: 0.75rem;
+                padding: 0.375rem 0.5rem;
+            }
+
+            .movie-title {
+                font-size: 1.5rem;
+            }
+
+            .main-title {
+                font-size: 2rem;
+            }
+
+            .cta-buttons {
+                gap: 0.75rem;
+            }
+
+            .platform-btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- LANDING PAGE -->
+        <div id="landing" class="screen active">
+            <header class="header">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    <span class="logo-text">CineFácil</span>
+                </div>
+                <button class="login-btn">Entrar</button>
+            </header>
+
+            <main class="landing-main">
+                <!-- Decorative Icons -->
+                <svg class="decorative-icon popcorn" viewBox="0 0 24 24">
+                    <path d="M18,10A2,2 0 0,1 20,12V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V12A2,2 0 0,1 6,10H18M12,2A2,2 0 0,1 14,4A2,2 0 0,1 12,6A2,2 0 0,1 10,4A2,2 0 0,1 12,2M9,3A2,2 0 0,1 11,5A2,2 0 0,1 9,7A2,2 0 0,1 7,5A2,2 0 0,1 9,3M15,3A2,2 0 0,1 17,5A2,2 0 0,1 15,7A2,2 0 0,1 13,5A2,2 0 0,1 15,3Z"/>
+                </svg>
+                <svg class="decorative-icon clapperboard" viewBox="0 0 24 24">
+                    <path d="M18,4L20,8H17L15,4H13L15,8H12L10,4H8L10,8H7L5,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V4H18Z"/>
+                </svg>
+                <svg class="decorative-icon star" viewBox="0 0 24 24">
+                    <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"/>
+                </svg>
+
+                <h1 class="main-headline">
+                    Descubra o <span class="gradient-text">filme perfeito</span><br>
+                    para assistir <span id="dynamicText" class="dynamic-text">hoje</span>
+                </h1>
+                
+                <p class="subheadline">
+                    Baseado nas suas preferências e humor do momento, nossa inteligência artificial encontra 
+                    a recomendação ideal entre milhares de filmes disponíveis.
+                </p>
+
+                <button class="cta-button" onclick="startQuiz()">
+                    <svg class="rocket-icon" viewBox="0 0 24 24">
+                        <path d="M2.81,14.12L5.64,11.29L8.17,10.79C11.39,6.41 17.55,4.22 19.78,4.22C19.78,6.45 17.59,12.61 13.21,15.83L12.71,18.36L9.88,21.19C9.29,21.78 8.28,21.78 7.69,21.19L2.81,16.31C2.22,15.72 2.22,14.71 2.81,14.12M7.68,17.96L10.08,15.56L11.56,15.79C15.26,12.91 16.87,8.63 17.47,6.56C15.4,7.16 11.12,8.77 8.24,12.47L8.47,13.95L6.07,16.35L7.68,17.96Z"/>
+                    </svg>
+                    Começar Agora
+                </button>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon-container purple">
+                            <svg class="feature-icon purple" viewBox="0 0 24 24">
+                                <path d="M9,22A1,1 0 0,1 8,21V18H4A2,2 0 0,1 2,16V4C2,2.89 2.9,2 4,2H20A2,2 0 0,1 22,4V16A2,2 0 0,1 20,18H13.9L10.2,21.71C10,21.9 9.75,22 9.5,22V22H9Z"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">IA Personalizada</h3>
+                        <p class="feature-description">
+                            Algoritmo que entende seu humor e estilo de filme preferido
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon-container cyan">
+                            <svg class="feature-icon cyan" viewBox="0 0 24 24">
+                                <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Super Rápido</h3>
+                        <p class="feature-description">
+                            Recomendação em menos de 2 minutos com apenas 3 perguntas
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon-container purple">
+                            <svg class="feature-icon purple" viewBox="0 0 24 24">
+                                <path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Qualidade Garantida</h3>
+                        <p class="feature-description">
+                            Apenas filmes bem avaliados e disponíveis nas principais plataformas
+                        </p>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="footer">
+                © 2024 CineFácil. Feito com 💜 para os amantes de cinema.
+            </footer>
+        </div>
+
+        <!-- QUIZ SCREEN 1 -->
+        <div id="quiz1" class="screen">
+            <header class="header">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    <span class="logo-text">CineFácil</span>
+                </div>
+                <button class="back-btn" onclick="goBack()">Voltar</button>
+            </header>
+
+            <div class="progress-section">
+                <div class="progress-text">Pergunta 1 de 3</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar" style="width: 33.33%;"></div>
+                </div>
+            </div>
+
+            <main class="quiz-content">
+                <div class="question-container active">
+                    <div class="question-number">01</div>
+                    <h2 class="question-title">Qual gênero você prefere?</h2>
+                    
+                    <div class="options-grid">
+                        <div class="option-button" data-genre="action" onclick="selectOption(this, 'action')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M18.6,6.62C21.58,6.9 24,9.5 24,12.64C24,15.93 21.29,18.64 18,18.64H17.5L16.5,21L15,19.5L14,21L12.5,19.5L11.5,21L10,19.5L9,21L7.5,19.5L6.5,21L5,19.5L4,21L2.5,19.5L1.5,21L0.5,19.5L0,18.64V12.64C0,9.34 2.69,6.64 6,6.64C8.5,6.64 10.68,8.18 11.44,10.34H12.56C13.32,8.18 15.5,6.64 18,6.64M18,8.64C16.06,8.64 14.5,10.2 14.5,12.14C14.5,14.08 16.06,15.64 18,15.64C19.94,15.64 21.5,14.08 21.5,12.14C21.5,10.2 19.94,8.64 18,8.64M6,8.64C4.06,8.64 2.5,10.2 2.5,12.14C2.5,14.08 4.06,15.64 6,15.64C7.94,15.64 9.5,14.08 9.5,12.14C9.5,10.2 7.94,8.64 6,8.64M6,10.64A1.5,1.5 0 0,1 7.5,12.14A1.5,1.5 0 0,1 6,13.64A1.5,1.5 0 0,1 4.5,12.14A1.5,1.5 0 0,1 6,10.64M18,10.64A1.5,1.5 0 0,1 19.5,12.14A1.5,1.5 0 0,1 18,13.64A1.5,1.5 0 0,1 16.5,12.14A1.5,1.5 0 0,1 18,10.64Z"/>
+                            </svg>
+                            <span class="option-text">Ação</span>
+                            <span class="option-description">Aventura, lutas e explosões</span>
+                        </div>
+
+                        <div class="option-button" data-genre="terror" onclick="selectOption(this, 'terror')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M12,2C17.5,2 22,6.5 22,12C22,17.5 17.5,22 12,22C6.5,22 2,17.5 2,12C2,6.5 6.5,2 12,2M12,4C7.58,4 4,7.58 4,12C4,16.42 7.58,20 12,20C16.42,20 20,16.42 20,12C20,7.58 16.42,4 12,4M12,6C15.31,6 18,8.69 18,12C18,15.31 15.31,18 12,18C8.69,18 6,15.31 6,12C6,8.69 8.69,6 12,6M9,9V10H10V9H9M14,9V10H15V9H14M12,13C10.9,13 10,13.9 10,15H14C14,13.9 13.1,13 12,13Z"/>
+                            </svg>
+                            <span class="option-text">Terror</span>
+                            <span class="option-description">Suspense e medo garantido</span>
+                        </div>
+
+                        <div class="option-button" data-genre="romance" onclick="selectOption(this, 'romance')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/>
+                            </svg>
+                            <span class="option-text">Romance</span>
+                            <span class="option-description">Histórias de amor e emoção</span>
+                        </div>
+
+                        <div class="option-button" data-genre="comedy" onclick="selectOption(this, 'comedy')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M12,2C6.47,2 2,6.47 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M15.5,8A1.5,1.5 0 0,1 17,9.5A1.5,1.5 0 0,1 15.5,11A1.5,1.5 0 0,1 14,9.5A1.5,1.5 0 0,1 15.5,8M8.5,8A1.5,1.5 0 0,1 10,9.5A1.5,1.5 0 0,1 8.5,11A1.5,1.5 0 0,1 7,9.5A1.5,1.5 0 0,1 8.5,8M12,14C13.75,14 15.29,14.72 16.19,15.81L14.77,17.23C14.32,16.5 13.25,16 12,16C10.75,16 9.68,16.5 9.23,17.23L7.81,15.81C8.71,14.72 10.25,14 12,14Z"/>
+                            </svg>
+                            <span class="option-text">Comédia</span>
+                            <span class="option-description">Humor e diversão garantida</span>
+                        </div>
+
+                        <div class="option-button" data-genre="drama" onclick="selectOption(this, 'drama')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M11,2V22C5.9,21.5 2,17.2 2,12C2,6.8 5.9,2.5 11,2M13,2V22C18.1,21.5 22,17.2 22,12C22,6.8 18.1,2.5 13,2Z"/>
+                            </svg>
+                            <span class="option-text">Drama</span>
+                            <span class="option-description">Histórias profundas e emocionantes</span>
+                        </div>
+                    </div>
+
+
+                </div>
+            </main>
+        </div>
+
+        <!-- QUIZ SCREEN 2 -->
+        <div id="quiz2" class="screen">
+            <header class="header">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    <span class="logo-text">CineFácil</span>
+                </div>
+                <button class="back-btn" onclick="goBack()">Voltar</button>
+            </header>
+
+            <div class="progress-section">
+                <div class="progress-text">Pergunta 2 de 3</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 66.66%;"></div>
+                </div>
+            </div>
+
+            <main class="quiz-content">
+                <div class="question-container active">
+                    <div class="question-number">02</div>
+                    <h2 class="question-title">Com quem você vai assistir?</h2>
+                    
+                    <div class="options-grid">
+                        <div class="option-button" data-company="alone" onclick="selectOption(this, 'alone')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                            </svg>
+                            <span class="option-text">Sozinho(a)</span>
+                            <span class="option-description">Momento só meu</span>
+                        </div>
+
+                        <div class="option-button" data-company="friends" onclick="selectOption(this, 'friends')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M16,4C18.21,4 20,5.79 20,8C20,10.21 18.21,12 16,12C13.79,12 12,10.21 12,8C12,5.79 13.79,4 16,4M16,14C19.31,14 22,15.79 22,18V20H10V18C10,15.79 12.69,14 16,14M8,4C10.21,4 12,5.79 12,8C12,10.21 10.21,12 8,12C5.79,12 4,10.21 4,8C4,5.79 5.79,4 8,4M8,14C11.31,14 14,15.79 14,18V20H2V18C2,15.79 4.69,14 8,14Z"/>
+                            </svg>
+                            <span class="option-text">Com amigos</span>
+                            <span class="option-description">Diversão em grupo</span>
+                        </div>
+
+                        <div class="option-button" data-company="crush" onclick="selectOption(this, 'crush')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/>
+                            </svg>
+                            <span class="option-text">Com crush</span>
+                            <span class="option-description">Momento romântico</span>
+                        </div>
+
+                        <div class="option-button" data-company="family" onclick="selectOption(this, 'family')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M16,4C16.88,4 17.67,4.25 18.31,4.69C14.92,5.5 13,8.34 13,12C13,15.66 14.92,18.5 18.31,19.31C17.67,19.75 16.88,20 16,20A4,4 0 0,1 12,16V12A4,4 0 0,1 16,8V4M18,2A2,2 0 0,1 20,4V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2H18M12,6A3,3 0 0,1 15,9A3,3 0 0,1 12,12A3,3 0 0,1 9,9A3,3 0 0,1 12,6M6,14C6,12.67 8.67,12 12,12C15.33,12 18,12.67 18,14V16H6V14Z"/>
+                            </svg>
+                            <span class="option-text">Com família</span>
+                            <span class="option-description">Para toda família</span>
+                        </div>
+                    </div>
+
+
+                </div>
+            </main>
+        </div>
+
+        <!-- QUIZ SCREEN 3 -->
+        <div id="quiz3" class="screen">
+            <header class="header">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    <span class="logo-text">CineFácil</span>
+                </div>
+                <button class="back-btn" onclick="goBack()">Voltar</button>
+            </header>
+
+            <div class="progress-section">
+                <div class="progress-text">Pergunta 3 de 3</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%;"></div>
+                </div>
+            </div>
+
+            <main class="quiz-content">
+                <div class="question-container active">
+                    <div class="question-number">03</div>
+                    <h2 class="question-title">O que você prefere assistir?</h2>
+                    
+                    <div class="options-grid">
+                        <div class="option-button" data-content="episode" onclick="selectOption(this, 'episode')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z"/>
+                            </svg>
+                            <span class="option-text">Episódio curto</span>
+                            <span class="option-description">20-40 minutos</span>
+                        </div>
+
+                        <div class="option-button" data-content="movie" onclick="selectOption(this, 'movie')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M18,4L20,8H17L15,4H13L15,8H12L10,4H8L10,8H7L5,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V4H18Z"/>
+                            </svg>
+                            <span class="option-text">Filme</span>
+                            <span class="option-description">1h30 - 2h30</span>
+                        </div>
+
+                        <div class="option-button" data-content="series" onclick="selectOption(this, 'series')">
+                            <svg class="option-icon" viewBox="0 0 24 24">
+                                <path d="M8,3A2,2 0 0,0 6,5V9A2,2 0 0,1 4,11H3V13H4A2,2 0 0,1 6,15V19A2,2 0 0,0 8,21H10V19H8V14A2,2 0 0,0 6,12A2,2 0 0,0 8,10V5H10V3H8M16,3A2,2 0 0,1 18,5V9A2,2 0 0,0 20,11H21V13H20A2,2 0 0,0 18,15V19A2,2 0 0,1 16,21H14V19H16V14A2,2 0 0,1 18,12A2,2 0 0,1 16,10V5H14V3H16Z"/>
+                            </svg>
+                            <span class="option-text">Série longa</span>
+                            <span class="option-description">Várias temporadas</span>
+                        </div>
+                    </div>
+
+
+                </div>
+            </main>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div id="result" class="screen">
+            <header class="header">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    <span class="logo-text">CineFácil</span>
+                </div>
+                <button class="back-btn" onclick="startOver()">Novo Teste</button>
+            </header>
+
+            <main class="result-main">
+                <div class="success-badge">
+                    <svg class="badge-icon" viewBox="0 0 24 24">
+                        <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+                    </svg>
+                    Recomendação Encontrada!
+                </div>
+
+                <h1 class="main-title">Seu filme perfeito</h1>
+                <p class="subtitle">Baseado nas suas preferências, aqui está nossa recomendação:</p>
+
+                <div class="movie-card">
+                    <div class="movie-backdrop" id="movieBackdrop">
+                        <!-- Background image will be injected here -->
+                    </div>
+                    <div class="movie-content">
+                        <div class="movie-poster">
+                            <svg class="poster-placeholder" viewBox="0 0 24 24">
+                                <path d="M18,4L20,8H17L15,4H13L15,8H12L10,4H8L10,8H7L5,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V4H18Z"/>
+                            </svg>
+                        </div>
+                        <div class="movie-info">
+                            <div class="movie-badges" id="movieBadges">
+                                <!-- Genre badges will be added here -->
+                            </div>
+                            <h2 class="movie-title" id="movieTitle">Carregando...</h2>
+                            <div class="movie-meta">
+                                <div class="meta-item">
+                                    <svg class="meta-icon" viewBox="0 0 24 24">
+                                        <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                                    </svg>
+                                    <span id="movieDuration">--min</span>
+                                </div>
+                                <div class="meta-item">
+                                    <svg class="meta-icon" viewBox="0 0 24 24">
+                                        <path d="M9,10V12H7V10H9M13,10V12H11V10H13M17,10V12H15V10H17M19,3A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H6V1H8V3H16V1H18V3H19M19,19V8H5V19H19M9,14V16H7V14H9M13,14V16H11V14H13M17,14V16H15V14H17Z"/>
+                                    </svg>
+                                    <span id="movieYear">----</span>
+                                </div>
+                                <div class="rating">
+                                    ★ <span id="movieRating">-.-</span>
+                                </div>
+                            </div>
+                            <p class="movie-synopsis" id="movieSynopsis">
+                                Carregando descrição do filme...
+                            </p>
+                            <div class="movie-credits" id="movieCredits" style="display: none;">
+                                <div class="credits-title">Direção & Elenco</div>
+                                <div class="credits-text" id="creditsText">
+                                    Carregando informações...
+                                </div>
+                            </div>
+                            <div class="availability-text">
+                                🎬 Disponível agora no CineFlix - sua plataforma de streaming
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="features-section">
+                    <div class="features-title">🎬 Muito mais no CineFlix</div>
+                    <div class="features-subtitle">Sua plataforma completa de entretenimento</div>
+                    
+                    <div class="content-categories">
+                        <div class="category-item">
+                            <div class="category-icon">🎭</div>
+                            <div class="category-name">Filmes</div>
+                        </div>
+                        <div class="category-item">
+                            <div class="category-icon">📺</div>
+                            <div class="category-name">Séries</div>
+                        </div>
+                        <div class="category-item">
+                            <div class="category-icon">⚽</div>
+                            <div class="category-name">Esportes</div>
+                        </div>
+                        <div class="category-item">
+                            <div class="category-icon">📚</div>
+                            <div class="category-name">Documentários</div>
+                        </div>
+                    </div>
+
+                    <div class="channels-section">
+                        <div class="channels-title">Canais Parceiros</div>
+                        <div class="channels-grid">
+                            <div class="channel-item">
+                                <div class="channel-logo premiere">PREMIERE</div>
+                            </div>
+                            <div class="channel-item">
+                                <div class="channel-logo sportv">SporTV</div>
+                            </div>
+                            <div class="channel-item">
+                                <div class="channel-logo telecine">TELECINE</div>
+                            </div>
+                            <div class="channel-item">
+                                <div class="channel-logo hbo">HBO</div>
+                            </div>
+                            <div class="channel-item">
+                                <div class="channel-logo history">HISTORY</div>
+                            </div>
+                            <div class="channel-item">
+                                <div class="channel-logo discovery">DISCOVERY</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cta-section">
+                    <div class="urgency-text">🔥 Assista agora no CineFlix</div>
+                    
+                    <div class="cta-buttons">
+                        <a href="#" class="platform-btn" id="cineflixBtn">
+                            <svg class="platform-icon" viewBox="0 0 24 24">
+                                <path d="M18,4L20,8H17L15,4H13L15,8H12L10,4H8L10,8H7L5,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V4H18M9.5,16A3.5,3.5 0 0,1 6,12.5A3.5,3.5 0 0,1 9.5,9A3.5,3.5 0 0,1 13,12.5A3.5,3.5 0 0,1 9.5,16M9.5,11A1.5,1.5 0 0,0 8,12.5A1.5,1.5 0 0,0 9.5,14A1.5,1.5 0 0,0 11,12.5A1.5,1.5 0 0,0 9.5,11Z"/>
+                            </svg>
+                            Abrir no CineFlix
+                        </a>
+                    </div>
+                </div>
+
+                <div class="social-share">
+                    <a href="#" class="share-btn" onclick="shareOnWhatsApp()">
+                        <svg class="share-icon" viewBox="0 0 24 24">
+                            <path d="M17.472,14.382C17.367,14.382 17.264,14.382 17.13,14.382C16.846,14.382 16.641,14.382 16.466,14.382C16.25,14.382 16.019,14.382 15.748,14.382C15.651,14.382 15.546,14.382 15.42,14.382C15.128,14.382 14.92,14.382 14.745,14.382C14.529,14.382 14.298,14.382 14.027,14.382C13.93,14.382 13.825,14.382 13.699,14.382C13.407,14.382 13.199,14.382 13.024,14.382C12.808,14.382 12.577,14.382 12.306,14.382C12.209,14.382 12.104,14.382 11.978,14.382C11.686,14.382 11.478,14.382 11.303,14.382C11.087,14.382 10.856,14.382 10.585,14.382C10.488,14.382 10.383,14.382 10.257,14.382C9.965,14.382 9.757,14.382 9.582,14.382C9.366,14.382 9.135,14.382 8.864,14.382C8.767,14.382 8.662,14.382 8.536,14.382C8.244,14.382 8.036,14.382 7.861,14.382C7.645,14.382 7.414,14.382 7.143,14.382C7.046,14.382 6.941,14.382 6.815,14.382C6.523,14.382 6.315,14.382 6.14,14.382C5.924,14.382 5.693,14.382 5.422,14.382C5.325,14.382 5.22,14.382 5.094,14.382C4.802,14.382 4.594,14.382 4.419,14.382C4.203,14.382 3.972,14.382 3.701,14.382C3.604,14.382 3.499,14.382 3.373,14.382C3.081,14.382 2.873,14.382 2.698,14.382C2.482,14.382 2.251,14.382 1.98,14.382C1.883,14.382 1.778,14.382 1.652,14.382C1.36,14.382 1.152,14.382 0.977,14.382C0.761,14.382 0.53,14.382 0.259,14.382C0.162,14.382 0.057,14.382 -0.069,14.382"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="share-btn" onclick="shareOnTwitter()">
+                        <svg class="share-icon" viewBox="0 0 24 24">
+                            <path d="M22.46,6C21.69,6.35 20.86,6.58 20,6.69C20.88,6.16 21.56,5.32 21.88,4.31C21.05,4.81 20.13,5.16 19.16,5.36C18.37,4.5 17.26,4 16,4C13.65,4 11.73,5.92 11.73,8.29C11.73,8.63 11.77,8.96 11.84,9.27C8.28,9.09 5.11,7.38 3,4.79C2.63,5.42 2.42,6.16 2.42,6.94C2.42,8.43 3.17,9.75 4.33,10.5C3.62,10.5 2.96,10.3 2.38,10C2.38,10 2.38,10 2.38,10.03C2.38,12.11 3.86,13.85 5.82,14.24C5.46,14.34 5.08,14.39 4.69,14.39C4.42,14.39 4.15,14.36 3.89,14.31C4.43,16 6,17.26 7.89,17.29C6.43,18.45 4.58,19.13 2.56,19.13C2.22,19.13 1.88,19.11 1.54,19.07C3.44,20.29 5.7,21 8.12,21C16,21 20.33,14.46 20.33,8.79C20.33,8.6 20.33,8.42 20.32,8.23C21.16,7.63 21.88,6.87 22.46,6Z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="share-btn" onclick="copyLink()">
+                        <svg class="share-icon" viewBox="0 0 24 24">
+                            <path d="M3.9,12C3.9,10.29 5.29,8.9 7,8.9H11V7H7A5,5 0 0,0 2,12A5,5 0 0,0 7,17H11V15.1H7C5.29,15.1 3.9,13.71 3.9,12M8,13H16V11H8V13M17,7H13V8.9H17C18.71,8.9 20.1,10.29 20.1,12C20.1,13.71 18.71,15.1 17,15.1H13V17H17A5,5 0 0,0 22,12A5,5 0 0,0 17,7Z"/>
+                        </svg>
+                    </a>
+                </div>
+            </main>
+
+            <footer class="footer">
+                Gostou da recomendação? Compartilhe com seus amigos!
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // TMDB Configuration
+        const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+        const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+        const TMDB_BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/w1280';
+        
+        // Global variables
+        let currentScreen = 'landing';
+        let userChoices = {};
+        let currentMovie = null;
+        
+        // TMDB Genre IDs mapping
+        const GENRE_IDS = {
+            'action': [28], // Action/Ação
+            'comedy': [35], // Comedy/Comédia
+            'romance': [10749], // Romance
+            'terror': [27], // Horror
+            'drama': [18], // Drama
+            'animacao': [16], // Animation
+            'documentario': [99], // Documentary
+            'ficcao': [878], // Science Fiction
+            'fantasia': [14], // Fantasy
+            'thriller': [53], // Thriller
+            'aventura': [12], // Adventure
+            'crime': [80], // Crime
+            'familia': [10751], // Family
+            'musica': [10402], // Music
+            'misterio': [9648] // Mystery
+        };
+
+        // Content database (movies, series, episodes)
+        const contentDatabase = {
+            'action-movie': {
+                title: 'Top Gun: Maverick',
+                year: 2022,
+                duration: 131,
+                rating: 8.3,
+                type: 'Filme',
+                synopsis: 'Após mais de 30 anos de serviço como um dos principais aviadores da Marinha, Pete "Maverick" Mitchell está onde pertence, ultrapassando os limites como um piloto de teste corajoso.'
+            },
+            'action-episode': {
+                title: 'The Boys - Episódio 1',
+                year: 2019,
+                duration: 45,
+                rating: 8.7,
+                type: 'Episódio',
+                synopsis: 'Em um mundo onde super-heróis são tratados como celebridades, um grupo de vigilantes conhecidos como "The Boys" luta contra heróis corruptos.'
+            },
+            'action-series': {
+                title: 'The Mandalorian',
+                year: 2019,
+                duration: 480,
+                rating: 8.8,
+                type: 'Série',
+                synopsis: 'As aventuras de um caçador de recompensas mandaloriano solitário nos confins da galáxia, longe da autoridade da Nova República.'
+            },
+            'terror-movie': {
+                title: 'Hereditário',
+                year: 2018,
+                duration: 127,
+                rating: 7.3,
+                type: 'Filme',
+                synopsis: 'Quando Ellen, a matriarca da família Graham, morre, sua filha Annie e sua família começam a descobrir os segredos perturbadores sobre seus ancestrais.'
+            },
+            'terror-episode': {
+                title: 'Black Mirror - USS Callister',
+                year: 2017,
+                duration: 76,
+                rating: 9.0,
+                type: 'Episódio',
+                synopsis: 'Um programador tímido de jogos cria uma versão modificada de Star Trek onde ele é o capitão e pode controlar seus colegas de trabalho como personagens.'
+            },
+            'terror-series': {
+                title: 'Stranger Things',
+                year: 2016,
+                duration: 600,
+                rating: 8.7,
+                type: 'Série',
+                synopsis: 'Quando um menino desaparece, uma pequena cidade descobre um mistério envolvendo experimentos secretos, forças sobrenaturais aterrorizantes e uma garota estranha.'
+            },
+            'romance-movie': {
+                title: 'Como Eu Era Antes de Você',
+                year: 2016,
+                duration: 106,
+                rating: 7.4,
+                type: 'Filme',
+                synopsis: 'Uma jovem alegre e carinhosa aceita um trabalho cuidando de um homem tetraplégico rico e bem-educado. Sua visão de mundo muda quando eles se apaixonam.'
+            },
+            'romance-episode': {
+                title: 'Love is Blind - Episódio 1',
+                year: 2020,
+                duration: 60,
+                rating: 7.2,
+                type: 'Episódio',
+                synopsis: 'Solteiros procuram o amor e se comprometem antes mesmo de se verem. Será que um relacionamento baseado em conexão emocional pode durar?'
+            },
+            'romance-series': {
+                title: 'Emily em Paris',
+                year: 2020,
+                duration: 300,
+                rating: 6.8,
+                type: 'Série',
+                synopsis: 'Uma executiva americana vai trabalhar em Paris e deve lidar com o trabalho, novos relacionamentos e muito drama cultural.'
+            },
+            'comedy-movie': {
+                title: 'Se Beber, Não Case!',
+                year: 2009,
+                duration: 100,
+                rating: 7.7,
+                type: 'Filme',
+                synopsis: 'Três padrinhos acordam de uma despedida de solteiro em Las Vegas, sem lembrar da noite anterior e sem o noivo. Com o casamento se aproximando, eles devem refazer seus passos.'
+            },
+            'comedy-episode': {
+                title: 'The Office - Diversity Day',
+                year: 2005,
+                duration: 22,
+                rating: 8.3,
+                type: 'Episódio',
+                synopsis: 'Michael tenta dar uma aula sobre diversidade depois de imitar um comediante indiano, causando mais problemas do que soluções no escritório.'
+            },
+            'comedy-series': {
+                title: 'Brooklyn Nine-Nine',
+                year: 2013,
+                duration: 2200,
+                rating: 8.4,
+                type: 'Série',
+                synopsis: 'As aventuras hilárias de um grupo de detetives em uma delegacia de Brooklyn, liderados pelo capitão mais sério de Nova York.'
+            },
+            'drama-movie': {
+                title: 'Em Busca da Felicidade',
+                year: 2006,
+                duration: 117,
+                rating: 8.0,
+                type: 'Filme',
+                synopsis: 'A verdadeira história de Chris Gardner, um vendedor em dificuldades financeiras que aceita um estágio não remunerado em uma corretora, lutando para criar seu filho pequeno.'
+            },
+            'drama-episode': {
+                title: 'This Is Us - Pilot',
+                year: 2016,
+                duration: 43,
+                rating: 8.9,
+                type: 'Episódio',
+                synopsis: 'Acompanhe a vida entrelaçada de várias pessoas que compartilham o mesmo aniversário e como suas vidas se conectam de maneiras inesperadas.'
+            },
+            'drama-series': {
+                title: 'Breaking Bad',
+                year: 2008,
+                duration: 2980,
+                rating: 9.5,
+                type: 'Série',
+                synopsis: 'Um professor de química do ensino médio diagnosticado com câncer inoperável recorre à fabricação e venda de metanfetamina para garantir o futuro financeiro de sua família.'
+            },
+            'default': {
+                title: 'Parasita',
+                year: 2019,
+                duration: 132,
+                rating: 8.6,
+                type: 'Filme',
+                synopsis: 'Uma família pobre se infiltra na vida de uma família rica, mas sua situação confortável logo se transforma em algo muito mais sinistro.'
+            }
+        };
+
+        // Screen management
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show target screen
+            document.getElementById(screenId).classList.add('active');
+            currentScreen = screenId;
+            
+            // Reactivate option buttons for the new screen
+            setTimeout(() => {
+                const activeScreen = document.getElementById(screenId);
+                const optionButtons = activeScreen.querySelectorAll('.option-button');
+                optionButtons.forEach(btn => {
+                    btn.style.pointerEvents = 'auto';
+                });
+            }, 100);
+        }
+
+        function startQuiz() {
+            userChoices = {};
+            showScreen('quiz1');
+        }
+
+        function startOver() {
+            userChoices = {};
+            showScreen('landing');
+        }
+
+        function goBack() {
+            switch(currentScreen) {
+                case 'quiz1':
+                    showScreen('landing');
+                    break;
+                case 'quiz2':
+                    showScreen('quiz1');
+                    break;
+                case 'quiz3':
+                    showScreen('quiz2');
+                    break;
+                case 'result':
+                    showScreen('quiz3');
+                    break;
+            }
+        }
+
+        // Option selection with auto-advance
+        function selectOption(element, value) {
+            // Disable all buttons to prevent multiple clicks
+            element.parentNode.querySelectorAll('.option-button').forEach(btn => {
+                btn.style.pointerEvents = 'none';
+                btn.classList.remove('selected');
+            });
+            
+            // Add selection to clicked element
+            element.classList.add('selected');
+            
+            // Store choice based on current screen
+            switch(currentScreen) {
+                case 'quiz1':
+                    userChoices.genre = value;
+                    // Auto-advance to next question after delay
+                    setTimeout(() => {
+                        showScreen('quiz2');
+                    }, 800);
+                    break;
+                case 'quiz2':
+                    userChoices.company = value;
+                    // Auto-advance to next question after delay
+                    setTimeout(() => {
+                        showScreen('quiz3');
+                    }, 800);
+                    break;
+                case 'quiz3':
+                    userChoices.content = value;
+                    // Auto-advance to result after delay
+                    setTimeout(() => {
+                        generateResult();
+                    }, 800);
+                    break;
+            }
+        }
+
+        // Navigation
+        function nextQuestion(currentQ) {
+            switch(currentQ) {
+                case 1:
+                    showScreen('quiz2');
+                    break;
+                case 2:
+                    showScreen('quiz3');
+                    break;
+            }
+        }
+
+        function prevQuestion(currentQ) {
+            switch(currentQ) {
+                case 2:
+                    showScreen('quiz1');
+                    break;
+                case 3:
+                    showScreen('quiz2');
+                    break;
+            }
+        }
+
+        // TMDB API Functions
+        async function searchMovieByPreferences(genre, company, contentType) {
+            try {
+                const genreIds = GENRE_IDS[genre] || [28]; // Default to action if genre not found
+                const genreParam = genreIds.join(',');
+                
+                let endpoint = '';
+                let additionalParams = '';
+                
+                // Determine content type (movie or TV)
+                if (contentType === 'movie') {
+                    endpoint = `/discover/movie?with_genres=${genreParam}&language=pt-BR&sort_by=popularity.desc&page=1`;
+                    
+                    // Adjust based on company preference
+                    if (company === 'family') {
+                        additionalParams += '&with_genres=10751'; // Family genre
+                    } else if (company === 'crush') {
+                        // Mix original genre with romance elements
+                        additionalParams += `&with_genres=10749,${genreParam}`; 
+                    } else if (company === 'friends') {
+                        additionalParams += '&vote_average.gte=7'; // Higher rated for friends
+                    }
+                    
+                } else if (contentType === 'series') {
+                    endpoint = `/discover/tv?with_genres=${genreParam}&language=pt-BR&sort_by=popularity.desc&page=1`;
+                    
+                    // Adjust based on company preference
+                    if (company === 'family') {
+                        additionalParams += '&with_genres=10751'; // Family genre
+                    } else if (company === 'crush') {
+                        additionalParams += '&with_genres=10749'; // Romance genre
+                    } else if (company === 'friends') {
+                        additionalParams += '&vote_average.gte=7.5'; // Higher rated
+                    }
+                    
+                } else if (contentType === 'episode') {
+                    // For episodes, search for TV shows
+                    endpoint = `/discover/tv?with_genres=${genreParam}&language=pt-BR&sort_by=popularity.desc&page=1`;
+                    
+                    // Adjust based on company preference
+                    if (company === 'family') {
+                        additionalParams += '&with_genres=10751'; // Family genre
+                    } else if (company === 'crush') {
+                        additionalParams += `&with_genres=10749,${genreParam}`; // Mix romance with selected genre
+                    } else if (company === 'friends') {
+                        additionalParams += '&vote_average.gte=6.5'; // Higher rated but not too restrictive
+                    }
+                }
+                
+                const fullURL = `${TMDB_BASE_URL}${endpoint}${additionalParams}&api_key=${window.TMDB_API_KEY}`;
+                console.log('TMDB Request:', fullURL);
+                
+                const response = await fetch(fullURL);
+                
+                if (!response.ok) {
+                    throw new Error(`TMDB API Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.results && data.results.length > 0) {
+                    // Get random movie from top 10 results for variety
+                    const randomIndex = Math.floor(Math.random() * Math.min(10, data.results.length));
+                    return data.results[randomIndex];
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Error fetching movie from TMDB:', error);
+                return null;
+            }
+        }
+
+        // Result generation with TMDB integration
+        async function generateResult() {
+            showScreen('result');
+            
+            // Show loading state
+            document.getElementById('movieTitle').textContent = 'Buscando sua recomendação...';
+            document.getElementById('movieSynopsis').textContent = 'Analisando suas preferências e encontrando o filme perfeito...';
+            
+            console.log('User choices:', userChoices);
+            
+            try {
+                // Search for real movie using TMDB with all preferences
+                const movie = await searchMovieByPreferences(
+                    userChoices.genre, 
+                    userChoices.company, 
+                    userChoices.content
+                );
+                
+                if (movie) {
+                    currentMovie = movie;
+                    displayMovieResult(movie);
+                } else {
+                    // Fallback to local database
+                    console.log('No TMDB results, using fallback');
+                    displayFallbackResult();
+                }
+            } catch (error) {
+                console.error('Error generating result:', error);
+                displayFallbackResult();
+            }
+        }
+
+        async function getMovieDetails(movieId, isTV = false) {
+            try {
+                const endpoint = isTV ? `/tv/${movieId}` : `/movie/${movieId}`;
+                const response = await fetch(`${TMDB_BASE_URL}${endpoint}?language=pt-BR&append_to_response=credits&api_key=${window.TMDB_API_KEY}`);
+                
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (error) {
+                console.error('Error fetching movie details:', error);
+            }
+            return null;
+        }
+
+        async function displayMovieResult(movie) {
+            // Update movie information with TMDB data
+            const title = movie.title || movie.name;
+            const releaseDate = movie.release_date || movie.first_air_date;
+            const year = releaseDate ? new Date(releaseDate).getFullYear() : 'N/A';
+            const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+            const synopsis = movie.overview || 'Descrição não disponível.';
+            const isTV = !!movie.name; // TV shows have 'name' instead of 'title'
+            
+            document.getElementById('movieTitle').textContent = title;
+            document.getElementById('movieYear').textContent = year;
+            document.getElementById('movieRating').textContent = rating;
+            document.getElementById('movieSynopsis').textContent = synopsis;
+            
+            // Add genre badges
+            const badgesContainer = document.getElementById('movieBadges');
+            badgesContainer.innerHTML = '';
+            
+            if (movie.genre_ids && movie.genre_ids.length > 0) {
+                const genreNames = {
+                    28: 'Ação', 35: 'Comédia', 18: 'Drama', 27: 'Terror', 10749: 'Romance',
+                    16: 'Animação', 99: 'Documentário', 878: 'Ficção', 14: 'Fantasia',
+                    53: 'Thriller', 12: 'Aventura', 80: 'Crime', 10751: 'Família'
+                };
+                
+                movie.genre_ids.slice(0, 3).forEach(genreId => {
+                    if (genreNames[genreId]) {
+                        const badge = document.createElement('span');
+                        badge.className = 'genre-badge';
+                        badge.textContent = genreNames[genreId];
+                        badgesContainer.appendChild(badge);
+                    }
+                });
+            }
+            
+            // Add quality badge
+            if (rating >= 8.0) {
+                const qualityBadge = document.createElement('span');
+                qualityBadge.className = 'quality-badge';
+                qualityBadge.textContent = 'Alta Qualidade';
+                badgesContainer.appendChild(qualityBadge);
+            }
+            
+            // Update backdrop if available
+            if (movie.backdrop_path) {
+                const backdropContainer = document.getElementById('movieBackdrop');
+                const backdropImg = document.createElement('img');
+                backdropImg.src = `${TMDB_BACKDROP_BASE_URL}${movie.backdrop_path}`;
+                backdropImg.alt = title;
+                backdropImg.style.transition = 'opacity 0.5s ease';
+                backdropImg.style.opacity = '0';
+                
+                backdropImg.onload = function() {
+                    backdropImg.style.opacity = '1';
+                };
+                
+                backdropContainer.innerHTML = '';
+                backdropContainer.appendChild(backdropImg);
+            }
+            
+            // Update poster if available
+            if (movie.poster_path) {
+                const posterImg = document.createElement('img');
+                posterImg.src = `${TMDB_IMAGE_BASE_URL}${movie.poster_path}`;
+                posterImg.alt = title;
+                posterImg.style.width = '100%';
+                posterImg.style.height = '100%';
+                posterImg.style.objectFit = 'cover';
+                posterImg.style.borderRadius = '1rem';
+                posterImg.style.transition = 'opacity 0.3s ease';
+                posterImg.style.opacity = '0';
+                
+                posterImg.onload = function() {
+                    posterImg.style.opacity = '1';
+                };
+                
+                const posterContainer = document.querySelector('.movie-poster');
+                posterContainer.innerHTML = '';
+                posterContainer.appendChild(posterImg);
+            }
+            
+            // Get detailed information
+            try {
+                const details = await getMovieDetails(movie.id, isTV);
+                if (details) {
+                    // Update duration with actual runtime
+                    const duration = details.runtime || details.episode_run_time?.[0] || (isTV ? '45' : '120');
+                    document.getElementById('movieDuration').textContent = duration + 'min';
+                    
+                    // Add director and cast information
+                    if (details.credits) {
+                        const director = details.credits.crew?.find(person => person.job === 'Director');
+                        const topCast = details.credits.cast?.slice(0, 3).map(actor => actor.name).join(', ');
+                        
+                        if (director || topCast) {
+                            const creditsContainer = document.getElementById('movieCredits');
+                            const creditsText = document.getElementById('creditsText');
+                            
+                            let creditsInfo = '';
+                            if (director) creditsInfo += `Direção: ${director.name}`;
+                            if (topCast) {
+                                if (creditsInfo) creditsInfo += '\n';
+                                creditsInfo += `Elenco: ${topCast}`;
+                            }
+                            
+                            creditsText.textContent = creditsInfo;
+                            creditsContainer.style.display = 'block';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading detailed movie info:', error);
+                const duration = movie.runtime || (isTV ? '45' : '120');
+                document.getElementById('movieDuration').textContent = duration + 'min';
+            }
+            
+            console.log('Movie loaded from TMDB:', title, year);
+        }
+
+        function displayFallbackResult() {
+            // Try to make another TMDB request with simpler parameters
+            setTimeout(async () => {
+                try {
+                    // Simplified TMDB request for popular content
+                    const contentType = userChoices.content === 'episode' ? 'tv' : 'movie';
+                    const endpoint = contentType === 'movie' ? '/movie/popular' : '/tv/popular';
+                    const response = await fetch(`${TMDB_BASE_URL}${endpoint}?language=pt-BR&page=1&api_key=${window.TMDB_API_KEY}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.results && data.results.length > 0) {
+                            const randomMovie = data.results[Math.floor(Math.random() * Math.min(5, data.results.length))];
+                            displayMovieResult(randomMovie);
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Fallback TMDB request failed:', error);
+                }
+                
+                // Ultimate fallback to local database
+                let contentKey = 'default';
+                
+                if (userChoices.genre && userChoices.content) {
+                    const possibleKey = `${userChoices.genre}-${userChoices.content}`;
+                    if (contentDatabase[possibleKey]) {
+                        contentKey = possibleKey;
+                    }
+                } else if (userChoices.genre && contentDatabase[userChoices.genre + '-movie']) {
+                    contentKey = userChoices.genre + '-movie';
+                }
+                
+                const content = contentDatabase[contentKey];
+                
+                document.getElementById('movieTitle').textContent = content.title;
+                document.getElementById('movieYear').textContent = content.year;
+                document.getElementById('movieDuration').textContent = content.duration + 'min';
+                document.getElementById('movieRating').textContent = content.rating;
+                document.getElementById('movieSynopsis').textContent = content.synopsis;
+                
+                // Add genre badges for fallback content
+                const badgesContainer = document.getElementById('movieBadges');
+                badgesContainer.innerHTML = '';
+                
+                if (content.genres) {
+                    content.genres.forEach(genre => {
+                        const badge = document.createElement('span');
+                        badge.className = 'genre-badge';
+                        badge.textContent = genre;
+                        badgesContainer.appendChild(badge);
+                    });
+                }
+                
+                // Type badge
+                const typeBadge = document.createElement('span');
+                typeBadge.className = 'type-badge';
+                typeBadge.textContent = content.type;
+                badgesContainer.appendChild(typeBadge);
+                
+                console.log('Local fallback movie loaded:', content.title);
+            }, 1000);
+        }
+
+        // Social sharing functions
+        function shareOnWhatsApp() {
+            const text = `Acabei de descobrir meu filme perfeito com o CineFácil! 🎬`;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        function shareOnTwitter() {
+            const text = `Acabei de descobrir meu filme perfeito com o CineFácil! 🎬`;
+            const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copiado para a área de transferência!');
+            });
+        }
+
+        // Dynamic text functionality
+        const textOptions = [
+            'hoje',
+            'com o crush',
+            'com a família',
+            'sozinho',
+            'com amigos',
+            'no primeiro encontro',
+            'no domingo',
+            'após o trabalho',
+            'no fim de semana',
+            'numa noite especial'
+        ];
+
+        let currentTextIndex = 0;
+
+        function updateDynamicText() {
+            const dynamicTextElement = document.getElementById('dynamicText');
+            if (dynamicTextElement) {
+                // Fade out
+                dynamicTextElement.style.opacity = '0';
+                dynamicTextElement.style.transform = 'translateY(10px)';
+                
+                setTimeout(() => {
+                    // Change text
+                    currentTextIndex = (currentTextIndex + 1) % textOptions.length;
+                    dynamicTextElement.textContent = textOptions[currentTextIndex];
+                    
+                    // Fade in
+                    dynamicTextElement.style.opacity = '1';
+                    dynamicTextElement.style.transform = 'translateY(0)';
+                }, 300);
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('CineFácil loaded successfully!');
+            
+            // Set TMDB API key from environment (will be injected by server)
+            window.TMDB_API_KEY = '__TMDB_API_KEY__';
+            
+            // Start dynamic text rotation
+            setInterval(updateDynamicText, 3000); // Change text every 3 seconds
+        });
+    </script>
+</body>
+</html>
